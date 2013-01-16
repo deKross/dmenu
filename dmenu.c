@@ -704,8 +704,8 @@ setup(void) {
 void
 usage(void) {
 	fputs("usage: dmenu [-b] [-q] [-f] [-i] [-l lines] [-p prompt] [-fn font]\n"
-	      "             [-x xoffset] [-y yoffset]\n"
-          "             [-h height] [-w width]\n"
-	      "             [-nb color] [-nf color] [-sb color] [-sf color] [-v]\n", stderr);
+	      "             [-x xoffset] [-y yoffset] [-h height] [-w width]\n"
+	      "             [-nb color] [-nf color] [-sb color] [-sf color]\n"
+          "             [-ob color] [-of color] [-v]\n", stderr);
 	exit(EXIT_FAILURE);
 }

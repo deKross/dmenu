@@ -8,8 +8,6 @@ dmenu \- dynamic menu
 .RB [ \-i ]
 .RB [ \-l
 .IR lines ]
-.RB [ \-h
-.IR height ]
 .RB [ \-p
 .IR prompt ]
 .RB [ \-fn
@@ -22,6 +20,19 @@ dmenu \- dynamic menu
 .IR color ]
 .RB [ \-sf
 .IR color ]
+.RB [ \-ob
+.IR color ]
+.RB [ \-of
+.IR color ]
+.RB [ \-x
+.IR xoffset ]
+.RB [ \-y
+.IR yoffset ] 
+.RB [ \-h
+.IR height ]
+.RB [ \-w
+.IR width ]
+.RB [ \-q ]
 .RB [ \-v ]
 .P
 .BR dmenu_run " ..."
@@ -54,9 +65,6 @@ dmenu matches menu items case insensitively.
 .BI \-l " lines"
 dmenu lists items vertically, with the given number of lines.
 .TP
-.BI \-h " height"
-defines the height of the bar in pixels.
-.TP
 .BI \-p " prompt"
 defines the prompt to be displayed to the left of the input field.
 .TP
@@ -68,6 +76,9 @@ defines the offset from the left border of the screen.
 .TP
 .BI \-y " yoffset"
 defines the offset from the top border of the screen.
+.TP
+.BI \-h " height"
+defines the height of the bar in pixels.
 .TP
 .BI \-w " width"
 defines the desired menu window width.
@@ -87,6 +98,12 @@ defines the selected background color.
 .BI \-sf " color"
 defines the selected foreground color.
 .TP
+.BI \-ob " color"
+defines the multiselect background color.
+.TP
+.BI \-of " color"
+defines the multiselect foreground color.
+.TP
 .B \-v
 prints version information to stdout, then exits.
 .SH USAGE
@@ -100,8 +117,12 @@ Copy the selected item to the input field.
 Confirm selection.  Prints the selected item to stdout and exits, returning
 success.
 .TP
+.B Ctrl\-Return
+Confirm selection.  Prints the selected item to stdout and continues.
+.TP
 .B Shift\-Return
 Confirm input.  Prints the input text to stdout and exits, returning success.
+.TP
 .TP
 .B Escape
 Exit without selecting an item, returning failure.
