@@ -132,6 +132,10 @@ main(int argc, char *argv[]) {
 			selbgcolor = argv[++i];
 		else if(!strcmp(argv[i], "-sf"))  /* selected foreground color */
 			selfgcolor = argv[++i];
+        else if(!strcmp(argv[i], "-ob"))  /* out background color */
+            outbgcolor = argv[++i];
+        else if(!strcmp(argv[i], "-of"))  /* out foreground color */
+            outfgcolor = argv[++i];
 		else
 			usage();
 
@@ -139,6 +143,7 @@ main(int argc, char *argv[]) {
 	initfont(dc, font ? font : DEFFONT);
 	normcol = initcolor(dc, normfgcolor, normbgcolor);
 	selcol = initcolor(dc, selfgcolor, selbgcolor);
+    outcol = initcolor(dc, outfgcolor, outbgcolor);
 
 	if(fast) {
 		grabkeyboard();
@@ -229,7 +234,7 @@ drawmenu(void) {
             dc->w = mw - dc->x;
             for(item = curr; item != next; item = item->right) {
                 dc->y += dc->h;
-                drawtext(dc, item->text, (item == sel) ? selcol : normcol);
+                drawtext(dc, item->text, (item == sel) ? selcol : (item->out) ? outcol : normcol);
             }
         }
         else if(matches) {
@@ -240,7 +245,7 @@ drawmenu(void) {
             for(item = curr; item != next; item = item->right) {
                 dc->x += dc->w;
                 dc->w = MIN(textw(dc, item->text), mw - dc->x - textw(dc, ">"));
-                drawtext(dc, item->text, (item == sel) ? selcol : normcol);
+                drawtext(dc, item->text, (item == sel) ? selcol : (item->out) ? outcol : normcol);
             }
             dc->w = textw(dc, ">");
             dc->x = mw - dc->w;
@@ -319,6 +324,9 @@ keypress(XKeyEvent *ev) {
 			XConvertSelection(dc->dpy, (ev->state & ShiftMask) ? clip : XA_PRIMARY,
 			                  utf8, utf8, win, CurrentTime);
 			return;
+        case XK_Return:
+        case XK_KP_Enter:
+            break;                            
 		default:
 			return;
 		}
@@ -404,6 +412,10 @@ keypress(XKeyEvent *ev) {
 	case XK_Return:
 	case XK_KP_Enter:
 		puts((sel && !(ev->state & ShiftMask)) ? sel->text : text);
+        if(ev->state & ControlMask) {
+            sel->out = True;
+            break;
+        }
 		ret = EXIT_SUCCESS;
 		running = False;
 	case XK_Right:
@@ -567,6 +579,7 @@ readstdin(void) {
 			*p = '\0';
 		if(!(items[i].text = strdup(buf)))
 			eprintf("cannot strdup %u bytes:", strlen(buf)+1);
+        items[i].out = False;
 		if(strlen(items[i].text) > max)
 			max = strlen(maxstr = items[i].text);
 	}
