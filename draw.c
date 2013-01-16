@@ -86,10 +86,6 @@ freedc(DC *dc) {
         XftFontClose(dc->dpy, dc->font.xft_font);
         XftDrawDestroy(dc->xftdraw);
     }
-    if(dc->font.xft_font) {
-        XftFontClose(dc->dpy, dc->font.xft_font);
-        XftDrawDestroy(dc->xftdraw);
-    }
 	if(dc->font.set)
 		XFreeFontSet(dc->dpy, dc->font.set);
     if(dc->font.xfont)

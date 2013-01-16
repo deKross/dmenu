@@ -23,8 +23,8 @@ LIBS = -L${X11LIB} -lX11 ${XINERAMALIBS} ${XFTLIBS}
 # flags
 CPPFLAGS = -D_BSD_SOURCE -D_POSIX_C_SOURCE=2 -DVERSION=\"${VERSION}\" ${XINERAMAFLAGS}
 #CFLAGS   = -g -std=c99 -pedantic -Wall -O0 ${INCS} ${CPPFLAGS}
-CFLAGS   = -std=c99 -pedantic -Wall -Os ${INCS} ${CPPFLAGS}
-LDFLAGS  = -s ${LIBS}
+CFLAGS   = -std=c99 -pedantic -Wall ${INCS} ${CPPFLAGS} `freetype-config --cflags --libs` -Os 
+LDFLAGS  = ${LIBS}
 
 # compiler and linker
-CC = cc
+CC = gcc-4.7

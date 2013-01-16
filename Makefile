@@ -16,13 +16,13 @@ options:
 
 .c.o:
 	@echo CC -c $<
-	@${CC} -c $< ${CFLAGS} `freetype-config --cflags --libs`
+	@${CC} -c $< ${CFLAGS}
 
 ${OBJ}: config.mk draw.h
 
 dmenu: dmenu.o draw.o
 	@echo CC -o $@
-	@${CC} -o $@ dmenu.o draw.o ${LDFLAGS} `freetype-config --cflags --libs`
+	@${CC} -o $@ dmenu.o draw.o ${LDFLAGS}
 
 stest: stest.o
 	@echo CC -o $@
