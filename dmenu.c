@@ -8,6 +8,7 @@
 #include <X11/Xlib.h>
 #include <X11/Xatom.h>
 #include <X11/Xutil.h>
+#include <X11/Xresource.h>
 #ifdef XINERAMA
 #include <X11/extensions/Xinerama.h>
 #endif
@@ -44,6 +45,7 @@ static void readstdin(void);
 static void run(void);
 static void setup(void);
 static void usage(void);
+static void read_resourses(void);
 
 static char text[BUFSIZ] = "";
 static int bh, mw, mh;
@@ -54,12 +56,12 @@ static int width = 0;
 static size_t cursor = 0;
 static const char *font = NULL;
 static const char *prompt = NULL;
-static const char *normbgcolor = "#222222";
-static const char *normfgcolor = "#bbbbbb";
-static const char *selbgcolor  = "#005577";
-static const char *selfgcolor  = "#eeeeee";
-static const char *outbgcolor  = "#00ffff";
-static const char *outfgcolor  = "#000000";
+static const char *normbgcolor = NULL;
+static const char *normfgcolor = NULL;
+static const char *selbgcolor  = NULL;
+static const char *selfgcolor  = NULL;
+static const char *outbgcolor  = NULL;
+static const char *outfgcolor  = NULL;
 static unsigned int lines, line_height = 0;
 static ColorSet *normcol;
 static ColorSet *selcol;
@@ -140,6 +142,7 @@ main(int argc, char *argv[]) {
 			usage();
 
 	dc = initdc();
+    read_resourses();
 	initfont(dc, font ? font : DEFFONT);
 	normcol = initcolor(dc, normfgcolor, normbgcolor);
 	selcol = initcolor(dc, selfgcolor, selbgcolor);
@@ -699,6 +702,50 @@ setup(void) {
 	XMapRaised(dc->dpy, win);
 	resizedc(dc, mw, mh);
 	drawmenu();
+}
+
+/* Set font and colors from X resources database if they are not set
+ * from command line */
+void
+read_resourses(void) {
+	XrmDatabase xdb;
+	char* xrm;
+	char* datatype[20];
+	XrmValue xvalue;
+
+	XrmInitialize();
+	xrm = XResourceManagerString(dc->dpy);
+	if( xrm != NULL ) {
+		xdb = XrmGetStringDatabase(xrm);
+		if( font == NULL && XrmGetResource(xdb, "dmenu.font", "*", datatype, &xvalue) == True )
+			font = strdup(xvalue.addr);
+		if( normfgcolor == NULL && XrmGetResource(xdb, "dmenu.foreground", "*", datatype, &xvalue) == True )
+			normfgcolor = strdup(xvalue.addr);
+		if( normbgcolor == NULL && XrmGetResource(xdb, "dmenu.background", "*", datatype, &xvalue) == True )
+			normbgcolor = strdup(xvalue.addr);
+		if( selfgcolor == NULL && XrmGetResource(xdb, "dmenu.selforeground", "*", datatype, &xvalue) == True )
+			selfgcolor = strdup(xvalue.addr);
+		if( selbgcolor == NULL && XrmGetResource(xdb, "dmenu.selbackground", "*", datatype, &xvalue) == True )
+			selbgcolor = strdup(xvalue.addr);
+		if( outfgcolor == NULL && XrmGetResource(xdb, "dmenu.outforeground", "*", datatype, &xvalue) == True )
+			outfgcolor = strdup(xvalue.addr);
+		if( outbgcolor == NULL && XrmGetResource(xdb, "dmenu.outbackground", "*", datatype, &xvalue) == True )
+			outbgcolor = strdup(xvalue.addr);
+		XrmDestroyDatabase(xdb);
+	}
+	/* Set default colors if they are not set */
+	if( normbgcolor == NULL )
+		normbgcolor = "#222222";
+	if( normfgcolor == NULL )
+		normfgcolor = "#bbbbbb";
+	if( selbgcolor == NULL )
+		selbgcolor  = "#005577";
+	if( selfgcolor == NULL )
+		selfgcolor  = "#eeeeee";
+    if( outbgcolor == NULL )
+        outbgcolor  = "#00ffff";
+    if( outfgcolor == NULL )
+        outfgcolor  = "#000000";
 }
 
 void
