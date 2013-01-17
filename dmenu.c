@@ -75,6 +75,7 @@ static DC *dc;
 static Item *items = NULL;
 static Item *matches, *matchend;
 static Item *prev, *curr, *next, *sel;
+static unsigned int outcount = 0;
 static Window win;
 static XIC xic;
 static Bool fuzzy;
@@ -291,6 +292,7 @@ keypress(XKeyEvent *ev) {
 	int len;
 	KeySym ksym = NoSymbol;
 	Status status;
+    Item *item;
 
 	len = XmbLookupString(xic, ev, buf, sizeof buf, &ksym, &status);
 	if(status == XBufferOverflow)
@@ -414,13 +416,27 @@ keypress(XKeyEvent *ev) {
 		break;
 	case XK_Return:
 	case XK_KP_Enter:
-		puts((sel && !(ev->state & ShiftMask)) ? sel->text : text);
+		if((ev->state & ShiftMask)) {
+            puts(text);
+            goto exit;
+        }
         if(ev->state & ControlMask) {
-            sel->out = True;
+            sel->out = !(sel->out);
+            (sel->out) ? outcount++ : outcount--;
             break;
         }
+        for(item = items; outcount && item; item++) {
+            if(!(item->out))
+                continue;
+            puts(item->text);
+            outcount--;
+        }
+        if(!(sel->out))
+            puts(sel->text);
+    exit:
 		ret = EXIT_SUCCESS;
 		running = False;
+        break;
 	case XK_Right:
 		if(text[cursor] != '\0') {
 			cursor = nextrune(+1);
