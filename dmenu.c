@@ -62,6 +62,8 @@ static const char *selbgcolor  = NULL;
 static const char *selfgcolor  = NULL;
 static const char *outbgcolor  = NULL;
 static const char *outfgcolor  = NULL;
+static const char *leftarrow   = NULL;
+static const char *rightarrow  = NULL;
 static unsigned int lines, line_height = 0;
 static ColorSet *normcol;
 static ColorSet *selcol;
@@ -130,6 +132,10 @@ main(int argc, char *argv[]) {
 			line_height = atoi(argv[++i]);
 		else if(!strcmp(argv[i], "-p"))   /* adds prompt to left of input field */
 			prompt = argv[++i];
+        else if(!strcmp(argv[i], "-la"))
+            leftarrow = argv[++i];
+        else if(!strcmp(argv[i], "-ra"))
+            rightarrow = argv[++i];
 		else if(!strcmp(argv[i], "-fn"))  /* font or font set */
 			font = argv[++i];
 		else if(!strcmp(argv[i], "-nb"))  /* normal background color */
@@ -190,7 +196,7 @@ calcoffsets(void) {
 	if(lines > 0)
 		n = lines * bh;
 	else
-		n = mw - (promptw + inputw + textw(dc, "<") + textw(dc, ">"));
+		n = mw - (promptw + inputw + textw(dc, leftarrow) + textw(dc, rightarrow));
 	/* calculate which items will begin the next page and previous page */
 	for(i = 0, next = curr; next; next = next->right)
 		if((i += (lines > 0) ? bh : MIN(textw(dc, next->text), n)) > n)
@@ -250,18 +256,18 @@ drawmenu(void) {
         }
         else if(matches) {
             dc->x += inputw;
-            dc->w = textw(dc, "<");
+            dc->w = textw(dc, leftarrow);
             if(curr->left)
-                drawtext(dc, "<", normcol);
+                drawtext(dc, leftarrow, normcol);
             for(item = curr; item != next; item = item->right) {
                 dc->x += dc->w;
-                dc->w = MIN(textw(dc, item->text), mw - dc->x - textw(dc, ">"));
+                dc->w = MIN(textw(dc, item->text), mw - dc->x - textw(dc, rightarrow));
                 drawtext(dc, item->text, (item == sel) ? selcol : (item->out) ? outcol : normcol);
             }
-            dc->w = textw(dc, ">");
+            dc->w = textw(dc, rightarrow);
             dc->x = mw - dc->w;
             if(next)
-                drawtext(dc, ">", normcol);
+                drawtext(dc, rightarrow, normcol);
         }
     }
 	mapdc(dc, win, mw, mh);
@@ -744,43 +750,54 @@ read_resourses(void) {
 
 	XrmInitialize();
 	xrm = XResourceManagerString(dc->dpy);
-	if( xrm != NULL ) {
+	if(xrm != NULL) {
 		xdb = XrmGetStringDatabase(xrm);
-		if( font == NULL && XrmGetResource(xdb, "dmenu.font", "*", datatype, &xvalue) == True )
+		if(font == NULL && XrmGetResource(xdb, "dmenu.font", "*", datatype, &xvalue) == True)
 			font = strdup(xvalue.addr);
-		if( normfgcolor == NULL && XrmGetResource(xdb, "dmenu.foreground", "*", datatype, &xvalue) == True )
+		if(normfgcolor == NULL && XrmGetResource(xdb, "dmenu.foreground", "*", datatype, &xvalue) == True)
 			normfgcolor = strdup(xvalue.addr);
-		if( normbgcolor == NULL && XrmGetResource(xdb, "dmenu.background", "*", datatype, &xvalue) == True )
+		if(normbgcolor == NULL && XrmGetResource(xdb, "dmenu.background", "*", datatype, &xvalue) == True)
 			normbgcolor = strdup(xvalue.addr);
-		if( selfgcolor == NULL && XrmGetResource(xdb, "dmenu.selforeground", "*", datatype, &xvalue) == True )
+		if(selfgcolor == NULL && XrmGetResource(xdb, "dmenu.selforeground", "*", datatype, &xvalue) == True)
 			selfgcolor = strdup(xvalue.addr);
-		if( selbgcolor == NULL && XrmGetResource(xdb, "dmenu.selbackground", "*", datatype, &xvalue) == True )
+		if(selbgcolor == NULL && XrmGetResource(xdb, "dmenu.selbackground", "*", datatype, &xvalue) == True)
 			selbgcolor = strdup(xvalue.addr);
-		if( outfgcolor == NULL && XrmGetResource(xdb, "dmenu.outforeground", "*", datatype, &xvalue) == True )
+		if(outfgcolor == NULL && XrmGetResource(xdb, "dmenu.outforeground", "*", datatype, &xvalue) == True)
 			outfgcolor = strdup(xvalue.addr);
-		if( outbgcolor == NULL && XrmGetResource(xdb, "dmenu.outbackground", "*", datatype, &xvalue) == True )
+		if(outbgcolor == NULL && XrmGetResource(xdb, "dmenu.outbackground", "*", datatype, &xvalue) == True)
 			outbgcolor = strdup(xvalue.addr);
+        if(leftarrow == NULL && XrmGetResource(xdb, "dmenu.leftarrow", "*", datatype, &xvalue) == True)
+            leftarrow = strdup(xvalue.addr);
+        if(rightarrow == NULL && XrmGetResource(xdb, "dmenu.rightarrow", "*", datatype, &xvalue) == True)
+            rightarrow = strdup(xvalue.addr);
 		XrmDestroyDatabase(xdb);
 	}
 	/* Set default colors if they are not set */
-	if( normbgcolor == NULL )
+	if(normbgcolor == NULL)
 		normbgcolor = "#222222";
-	if( normfgcolor == NULL )
+	if(normfgcolor == NULL)
 		normfgcolor = "#bbbbbb";
-	if( selbgcolor == NULL )
+	if(selbgcolor == NULL)
 		selbgcolor  = "#005577";
-	if( selfgcolor == NULL )
+	if(selfgcolor == NULL)
 		selfgcolor  = "#eeeeee";
-    if( outbgcolor == NULL )
+    if(outbgcolor == NULL)
         outbgcolor  = "#00ffff";
-    if( outfgcolor == NULL )
+    if(outfgcolor == NULL)
         outfgcolor  = "#000000";
+    if(leftarrow == NULL)
+        leftarrow = "<";
+    if(rightarrow == NULL)
+        rightarrow = ">";
 }
 
 void
 usage(void) {
-	fputs("usage: dmenu [-b] [-q] [-f] [-i] [-l lines] [-p prompt] [-fn font]\n"
-	      "             [-x xoffset] [-y yoffset] [-h height] [-w width]\n"
+	fputs("usage: dmenu [-b] [-q] [-f] [-i] [-I]\n"
+          "             [-l lines] [-p prompt] [-fn font]\n"
+          "             [-la leftarrow] [-ra rightarrow]\n"
+	      "             [-x xoffset] [-y yoffset]\n"
+          "             [-h height] [-w width] [-iw width]\n"
 	      "             [-nb color] [-nf color] [-sb color] [-sf color]\n"
           "             [-ob color] [-of color] [-v]\n", stderr);
 	exit(EXIT_FAILURE);
