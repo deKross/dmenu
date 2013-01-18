@@ -69,6 +69,7 @@ static ColorSet *outcol;
 static Atom clip, utf8;
 static Bool topbar = True;
 static Bool quiet = False;
+static Bool inputonly = False;
 static Bool running = True;
 static int ret = 0;
 static DC *dc;
@@ -99,6 +100,8 @@ main(int argc, char *argv[]) {
 			topbar = False;
 		else if(!strcmp(argv[i], "-q"))
 			quiet = True;
+        else if(!strcmp(argv[i], "-I"))
+            inputonly = True;
 		else if(!strcmp(argv[i], "-f"))   /* grabs keyboard before reading stdin */
 			fast = True;
 		else if(!strcmp(argv[i], "-z"))   /* enable fuzzy matching */
@@ -160,6 +163,8 @@ main(int argc, char *argv[]) {
 		grabkeyboard();
 	}
 	setup();
+    if(inputonly)
+        inputw = mw - promptw;
 	run();
 
 	cleanup();
@@ -235,7 +240,7 @@ drawmenu(void) {
 	if((curpos = textnw(dc, text, cursor) + dc->font.height/2) < dc->w)
 		drawrect(dc, curpos, (dc->h - dc->font.height)/2 + 1, 1, dc->font.height - 1, True, normcol->FG);
 
-    if(!quiet || strlen(text) > 0) {    
+    if(!inputonly || (!quiet || strlen(text) > 0)) {    
         if(lines > 0) {
             dc->w = mw - dc->x;
             for(item = curr; item != next; item = item->right) {
@@ -418,7 +423,7 @@ keypress(XKeyEvent *ev) {
 		break;
 	case XK_Return:
 	case XK_KP_Enter:
-		if((ev->state & ShiftMask)) {
+		if(inputonly || (ev->state & ShiftMask)) {
             puts(text);
             goto exit;
         }
@@ -590,6 +595,11 @@ void
 readstdin(void) {
 	char buf[sizeof text], *p, *maxstr = NULL;
 	size_t i, max = 0, size = 0;
+
+    if(inputonly) {
+        lines = 0;
+        return;
+    }
 
 	/* read each line from stdin and add it to the item list */
 	for(i = 0; fgets(buf, sizeof buf, stdin); i++) {

@@ -6,6 +6,7 @@ dmenu \- dynamic menu
 .RB [ \-b ]
 .RB [ \-f ]
 .RB [ \-i ]
+.RB [ \-I ]
 .RB [ \-q ]
 .RB [ \-l
 .IR lines ]
@@ -54,15 +55,18 @@ which lists programs in the user's $PATH and runs the result in their $SHELL.
 .B \-b
 dmenu appears at the bottom of the screen.
 .TP
-.B \-q
-dmenu will not show any items if the search string is empty.
-.TP
 .B \-f
 dmenu grabs the keyboard before reading stdin.  This is faster, but will lock up
 X until stdin reaches end\-of\-file.
 .TP
 .B \-i
 dmenu matches menu items case insensitively.
+.TP
+.B \-I
+dmenu ignores stdin and show only prompt and input field.
+.TP
+.B \-q
+dmenu will not show any items if the search string is empty.
 .TP
 .BI \-l " lines"
 dmenu lists items vertically, with the given number of lines.
@@ -119,11 +123,11 @@ arrow keys, page up, page down, home, and end.
 Copy the selected item to the input field.
 .TP
 .B Return
-Confirm selection.  Prints the selected item to stdout and exits, returning
-success.
+Confirm selection.  Prints the selected item/items to stdout and exits,
+returning success.
 .TP
 .B Ctrl\-Return
-Confirm selection.  Prints the selected item to stdout and continues.
+Toggle item selection.
 .TP
 .B Shift\-Return
 Confirm input.  Prints the input text to stdout and exits, returning success.
