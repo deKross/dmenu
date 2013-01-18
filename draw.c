@@ -22,15 +22,19 @@ drawrect(DC *dc, int x, int y, unsigned int w, unsigned int h, Bool fill, unsign
 void
 drawtext(DC *dc, const char *text, ColorSet *col) {
 	char buf[BUFSIZ];
-	size_t mn, n = strlen(text);
+	size_t mn, i, n = strlen(text);
 
 	/* shorten text if necessary */
 	for(mn = MIN(n, sizeof buf); textnw(dc, text, mn) + dc->font.height/2 > dc->w; mn--)
 		if(mn == 0)
 			return;
 	memcpy(buf, text, mn);
-	if(mn < n)
-		for(n = MAX(mn-3, 0); n < mn; buf[n++] = '.');
+	if(mn < n) {
+        /*if(righthand)*/
+            for(i = 0; i < mn; buf[i] = text[n - mn + i], i++);
+        /*else*/
+            /*for(n = MAX(mn-3, 0); n < mn; buf[n++] = '.');*/
+    }
 
 	drawrect(dc, 0, 0, dc->w, dc->h, True, col->BG);
 	drawtextn(dc, buf, mn, col);

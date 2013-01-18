@@ -6,6 +6,7 @@ dmenu \- dynamic menu
 .RB [ \-b ]
 .RB [ \-f ]
 .RB [ \-i ]
+.RB [ \-q ]
 .RB [ \-l
 .IR lines ]
 .RB [ \-p
@@ -32,7 +33,8 @@ dmenu \- dynamic menu
 .IR height ]
 .RB [ \-w
 .IR width ]
-.RB [ \-q ]
+.RB [ \-iw
+.IR width ]
 .RB [ \-v ]
 .P
 .BR dmenu_run " ..."
@@ -82,6 +84,9 @@ defines the height of the bar in pixels.
 .TP
 .BI \-w " width"
 defines the desired menu window width.
+.TP
+.BI \-iw " width"
+defines the input field width. If 1, width set to length of longest item.
 .TP
 .BI \-nb " color"
 defines the normal background color.

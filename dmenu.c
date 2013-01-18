@@ -49,7 +49,7 @@ static void read_resourses(void);
 
 static char text[BUFSIZ] = "";
 static int bh, mw, mh;
-static int inputw, promptw;
+static int inputw = 1, promptw;
 static int xoffset = 0;
 static int yoffset = 0;
 static int width = 0;
@@ -117,6 +117,8 @@ main(int argc, char *argv[]) {
 			yoffset = atoi(argv[++i]);
 		else if(!strcmp(argv[i], "-w"))
 			width = atoi(argv[++i]);
+        else if(!strcmp(argv[i], "-iw"))
+            inputw = atoi(argv[++i]);
 		else if(!strcmp(argv[i], "-l"))   /* number of lines in vertical list */
 			lines = atoi(argv[++i]);
 		else if(!strcmp(argv[i], "-h"))   /* minimum height of single line */
@@ -604,7 +606,8 @@ readstdin(void) {
 	}
 	if(items)
 		items[i].text = NULL;
-	inputw = maxstr ? textw(dc, maxstr) : 0;
+    if(inputw == 1)
+        inputw = maxstr ? textw(dc, maxstr) : 0;
 	lines = MIN(lines, i);
 }
 
